@@ -1,35 +1,32 @@
 def memory(max_size):
     cache = {}
-    cache_order = []
 
     def wrapper(func):
-        def inner(*args):
-            if args in cache:
-                print(f"{args} in cache")
-                cache_order.remove(args)
-                cache_order.append(args)
-                return cache[args]
-            else:
-                print(f"{args} not in cache")
-                result = func(*args)
-                cache[args] = result
-                cache_order.append(args)
+        def inner(*args, **kwargs):
+            # Формируем отсортированный кортеж из аргументов для создания ключа
+            key = tuple(sorted(args + tuple(kwargs.values())))
 
-                if len(cache_order) > max_size:
+            if key in cache:
+                print(f"{key} in cache")
+                return cache[key]
+            else:
+                result = func(*args, **kwargs)
+                if len(cache) >= max_size:
                     print('cache is full')
-                    oldest_args = cache_order.pop(0)
-                    del cache[oldest_args]
+                else:
+                    cache[key]=result
                 return result
         return inner
     return wrapper
 
-
 @memory(max_size=int(input()))
-def add(a,b):
-    return a+b
+def add(a, b):
 
-if __name__ == '__main__':
-    print(add(2,3))
-    print(add(1,3))
-    print(add(3,3))
+    return a + b
+
+# Пример использования
+print(add(1, 2)) 
+print(add(a=1,b=2))
+print(add(3,4))
+print(add(a=4,b=3))
 
